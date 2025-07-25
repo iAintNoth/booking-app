@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon, UserIcon, LogOutIcon, SettingsIcon } from 'lucide-react';
@@ -13,11 +13,13 @@ import {
 export default function Navbar() {
   const { user, isAdmin, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path: string) => location.pathname === path;
 
   const handleSignOut = async () => {
     await signOut();
+    navigate('/');
   };
 
   if (!user) {
