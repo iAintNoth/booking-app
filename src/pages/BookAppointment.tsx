@@ -117,25 +117,22 @@ export default function BookAppointment() {
 
     setLoading(true);
 
-    const { error } = await supabase
-      .from('appointments')
-      .insert({
-        user_id: user.id,
-        appointment_date: format(selectedDate, 'yyyy-MM-dd'),
-        appointment_time: selectedTime,
-        service_type: serviceType,
-        notes: notes || null,
-        status: 'pending'
-      });
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .insert({
+          user_id: user.id,
+          appointment_date: format(selectedDate, 'yyyy-MM-dd'),
+          appointment_time: selectedTime,
+          service_type: serviceType,
+          notes: notes || null,
+          status: 'pending'
+        });
 
-    if (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile prenotare l'appuntamento. Riprova.",
-        variant: "destructive"
-      });
-      console.error('Error booking appointment:', error);
-    } else {
+      if (error) {
+        throw error;
+      }
+
       toast({
         title: "Appuntamento prenotato",
         description: "Il tuo appuntamento è stato prenotato con successo!",
@@ -146,9 +143,17 @@ export default function BookAppointment() {
       setSelectedTime('');
       setServiceType('');
       setNotes('');
+      
+    } catch (error: any) {
+      console.error('Error booking appointment:', error);
+      toast({
+        title: "Errore",
+        description: error.message || "Impossibile prenotare l'appuntamento. Riprova.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const isDateDisabled = (date: Date) => {
